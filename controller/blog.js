@@ -1,4 +1,5 @@
 const { exec } = require('../db/mysql')
+const xss = require('xss')
 
 const getList = async (author, keyword) => {
   let sql = `select * from blogs where 1=1 `
@@ -20,7 +21,7 @@ const getDetail = async (id) => {
 }
 
 const newBlog = async (blogData = {}) => {
-  const { title, content, author } = blogData
+  const { title = xss(title), content = xss(content), author } = blogData
   const createTime = Date.now()
 
   let sql = `insert into blogs (title, content, createtime, author) 
@@ -34,14 +35,14 @@ const newBlog = async (blogData = {}) => {
 }
 
 const updateBlog = async (id, blogData) => {
-  const {title, content} = blogData
+  const {title = xss(title), content = xss(content)} = blogData
   const sql = `
     update blogs set title='${title}', content='${content}' where id='${id}'
   `
   const updateData = await exec(sql)
   if(updateData.affectedRows > 0) {
     return true
-  } 
+  }
   return false
 }
 
